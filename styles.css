@@ -349,7 +349,7 @@ body {
 }
 
 .calendar-day-cell {
-  min-height: 90px;
+  min-height: 105px;          
   border-right: 1px solid #f1f5f9;
   border-bottom: 1px solid #f1f5f9;
   padding: 6px;
@@ -371,29 +371,34 @@ body {
 }
 
 .event-badge {
-  padding: 4px 6px;
-  border-radius: 4px;
-  font-size: 0.72rem;
+  padding: 6px 8px;           
+  border-radius: 6px;         
+  font-size: 0.82rem;         
   font-weight: 600;
-  margin-bottom: 3px;
+  margin-bottom: 5px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;                  
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  transition: transform 0.15s ease;
+}
+
+.event-badge:hover {
+  transform: scale(1.02);
 }
 
 .org-icon-badge {
-  width: 16px;
-  height: 16px;
+  width: 22px;                
+  height: 22px;              
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.65rem;
+  font-size: 0.8rem;         
   color: white;
   flex-shrink: 0;
 }
