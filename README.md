@@ -1,94 +1,78 @@
-# AU-JRC-Calendar-App
-
 # 🏫 AU-JRC School Activities Calendar
 
 > **Stay informed. Be involved.**  
-> A centralized, interactive school activities calendar and administrative management portal built specifically for Arellano University - Jose Rizal Campus (AU-JRC)[cite: 1].
+> A centralized, interactive school activities calendar and administrative management portal built for **Arellano University - Jose Rizal Campus (AU-JRC)**.
 
 ---
 
 ## 📖 Table of Contents
 1. [Project Overview](#-project-overview)
-2. [How the Website Works (Architecture & Data Flow)](#-how-the-website-works-architecture--data-flow)
-3. [Language Breakdown & Their Roles](#-language-breakdown--their-roles)
-4. [Key Features Breakdown](#-key-features-breakdown)
-5. [Getting Started Locally](#-getting-started-locally)
-6. [Administrative Portal & Demo Credentials](#-administrative-portal--demo-credentials)
-7. [Deployment](#-deployment)
+2. [How the Website Works](#-how-the-website-works)
+3. [Language Breakdown & Roles](#-language-breakdown--roles)
+4. [Key Features](#-key-features)
+5. [Repository Structure](#-repository-structure)
+6. [Getting Started Locally](#-getting-started-locally)
+7. [Administrative Portal & Demo Credentials](#-administrative-portal--demo-credentials)
+8. [Deployment (GitHub Pages)](#-deployment-github-pages)
+9. [License](#-license)
 
 ---
 
 ## 🌟 Project Overview
 
-The **AU-JRC School Activities Calendar** is designed to eliminate fragmented event announcements by gathering academic forums, sports fests, student council activities, and club schedules into a single, responsive platform. It features an interactive monthly grid, organization filtering, real-time search, detailed event metadata modals, an announcements bulletin, and a secured administrator control panel[cite: 1].
+The **AU-JRC School Activities Calendar** gathers campus-wide events—including academic forums, sports festivals, student council programs, and club activities—into one responsive web application. Students and faculty can browse events by month, week, or list view, filter by campus organization, search schedules in real time, and inspect full event details, while administrators can create events with custom organization logos, delete outdated events, and post campus announcements.
 
 ---
 
-## ⚙️ How the Website Works (Architecture & Data Flow)
+## ⚙️ How the Website Works
 
-This project operates as a **Client-Side Single-Page Application (SPA)**. Unlike traditional websites that reload the entire page when you click a link or switch tabs, this app dynamically rewrites parts of the webpage using JavaScript.
+This application runs as a **Client-Side Single-Page Application (SPA)** powered entirely by HTML, CSS, and Vanilla JavaScript:
 
-1. **Initialization (`DOMContentLoaded`):** 
-   When the browser loads `index.html`, the attached JavaScript file (`script.js`) triggers an initialization function. It reads local data arrays containing events and announcements, and dynamically builds out the UI components (organization filter chips, calendar grid cells, and sidebar cards).
-2. **State Management:** 
-   The app keeps track of user states in real-time—such as the currently selected month/year, active organization filters (e.g., SSC, ICT Club), active view modes (Month vs. Week vs. List), and authentication status (Guest vs. Admin).
-3. **Dynamic DOM Rendering:** 
-   When a user interacts with the page (e.g., clicking the next month arrow or filtering by an organization), JavaScript recalculates the required items and updates only the necessary container elements in the HTML structure without refreshing the browser window.
-
----
-
-## 💻 Language Breakdown & Their Roles
-
-The project is built using three core web technologies working in synergy:
-
-### **1. HTML5 (`index.html`) - *The Skeleton & Structure***
-* **What it does:** HTML defines the semantic layout and layout blocks of the website. It creates the navigation bar, hero banner container, main grid layouts, modal overlays for event details and admin login, and the footer.
-* **How it works:** It acts as the blueprint. Every button, input field, and content section you see on the screen exists as an HTML element waiting for CSS to style it and JavaScript to animate or populate it.
-
-### **2. CSS3 (`styles.css`) - *The Skin & Styling***
-* **What it does:** CSS handles the visual presentation, color schemes, typography, responsive grids, and transitions. 
-* **How it works:** 
-  * **Branding & Variables:** Utilizes custom CSS variables (`:root`) to enforce Arellano University’s official navy blue (`--au-navy`) and gold (`--au-gold`) color palette.
-  * **Layout Systems:** Implements **CSS Grid** for the calendar month layout and **Flexbox** for the navigation bars, filter chips, and header toolbars.
-  * **Responsiveness:** Uses media queries (`@media`) to dynamically rearrange layout elements from multi-column desktop grids into single-column layouts optimized for smartphones and tablets.
-
-### **3. JavaScript (ES6+) (`script.js`) - *The Brain & Interactivity***
-* **What it does:** JavaScript drives all the logic, user interactions, calculations, and data manipulation.
-* **How it works in this app:**
-  * **Calendar Grid Math:** Dynamically calculates calendar dates, aligning the first day of any given month with the correct day of the week (Sunday–Saturday) while padding out past/future month overflows.
-  * **Event Filtering:** Filters JavaScript array objects based on active category chips and search input strings.
-  * **DOM Manipulation:** Injects HTML strings dynamically into containers (like the upcoming events sidebar or event directory).
-  * **Admin CRUD Operations:** Manages state transitions for logging in, validating credentials, pushing new event objects into the runtime array, and rendering delete functions.
+1. **Initialization (`DOMContentLoaded`):**
+   When `index.html` loads, `script.js` initializes the default organization metadata (`ORGS`), preloaded events (`eventsData`), and announcements (`announcementsData`), then renders the organization filter chips, calendar grid, upcoming events sidebar, event directory, and announcements feed[cite: 8].
+2. **State-Driven UI Updates:**
+   The app tracks active state variables in memory—such as `currentYear`, `currentMonth`, `activeOrgFilter`, `currentViewMode`, and `isAdminLoggedIn`[cite: 8]. Switching months, selecting an organization filter, or logging in as an admin triggers targeted re-renders without reloading the browser page[cite: 8].
+3. **Per-Event Custom Logos (`FileReader` & Fallback Assets):**
+   When creating an event in the Admin Panel, administrators can either upload an image file (converted client-side via `FileReader` into a Base64 data URL) or provide a relative image path/URL[cite: 8]. If no custom logo is supplied, SSC events default to `images/ssc-logo.png`, while other organizations display their corresponding Font Awesome badge icon[cite: 8].
 
 ---
 
-## 🚀 Key Features Breakdown
+## 💻 Language Breakdown & Roles
 
-* **Interactive Calendar Views:** Seamlessly switch between a full monthly grid, weekly perspective, or flat list view[cite: 1].
-* **Organization Filter Chips:** Click any department badge (SSC, ICT, Red Cross, Sports, NSTP, Alumni) to instantly filter calendar cells and sidebars[cite: 1].
-* **Event Details Modal:** Clicking any event card opens an overlay detailing time, venue, description, eligibility, and contact details[cite: 1].
-* **Announcements Feed:** A dedicated bulletin board keeping students informed of schedule shifts, venue changes, and urgent notices[cite: 1].
-
----
-
-## 🛠️ Getting Started Locally
-
-1. **Clone or Download** the repository to your computer.
-2. Ensure `index.html`, `styles.css`, and `script.js` are saved together inside the same project folder.
-3. **Launch:** Double-click `index.html` to open it in any modern web browser.
+* **HTML5 (`index.html`):** Defines the semantic page layout, navigation tabs, calendar containers, event detail and login modals, and the Administrator Control Center forms (including event logo file/URL inputs).
+* **CSS3 (`styles.css`):** Implements AU-JRC branding (Navy Blue & Gold), responsive CSS Grid and Flexbox layouts, stacked calendar event cards (circular organization logo above the event title), hover transitions, and admin-only delete button styling.
+* **JavaScript ES6+ (`script.js`):** Handles calendar date math, dynamic DOM rendering, live search and organization filtering, modal state, client-side image reading (`FileReader`), and administrative CRUD actions[cite: 8].
+* **Font Awesome v6:** Provides vector icons for organization badges, navigation controls, and administrative actions[cite: 8].
 
 ---
 
-## 🔑 Administrative Portal & Demo Credentials
+## ✨ Key Features
 
-To test adding new events or posting campus announcements:
-* Click the **Login** button on the upper right of the navigation bar[cite: 1].
-* **Username:** `admin`
-* **Password:** `au1938`
-* Once authenticated, the **Administrator Control Center** panel unlocks at the bottom of the page, allowing live event creation and deletion.
+* **Stacked Event Logo & Title Cards:** Calendar day cells display each event's circular organization logo prominently above the event title for quick visual scanning[cite: 8].
+* **Multi-View Calendar:** Switch seamlessly between **Month**, **Week**, and **List** views, and navigate forward or backward across months[cite: 8].
+* **Organization Filtering:** Filter events across the calendar, sidebar, and directory by department[cite: 8]:
+  * 🎓 **SSC** – Supreme Student Council[cite: 8]
+  * 💻 **ICT** – ICT Club[cite: 8]
+  * 🩺 **RCY** – Red Cross Youth[cite: 8]
+  * 🏆 **SPORTS** – Sports Development[cite: 8]
+  * 🌿 **NSTP** – NSTP Office[cite: 8]
+  * 🎖️ **ALUMNI** – Alumni Association[cite: 8]
+* **Real-Time Search & Event Modal:** Search events by title, venue, or description, and click any event card to view full schedule details[cite: 8].
+* **Campus Announcements:** Dedicated tab displaying categorized notices (`Important`, `Urgent`, `Notice`, `Update`)[cite: 8].
+* **Administrator Control Center:**
+  * Create new events with a custom organization logo file upload or image path/URL[cite: 8].
+  * Delete events directly from either the **Calendar grid** or the **Events Directory**[cite: 8].
+  * Publish new campus announcements[cite: 8].
 
 ---
 
-## 📄 License
+## 📁 Repository Structure
 
-Distributed under the MIT License. And idea owner of Cheska Burce
+```text
+AU-JRC-Calendar-App/
+├── index.html          # Main HTML structure, modals, and admin forms
+├── styles.css          # AU-JRC styling, responsive grids, and event card styles
+├── script.js           # Calendar logic, filtering, logo handling, and admin CRUD[cite: 8]
+├── images/
+│   └── ssc-logo.png    # Default Senior Student Council logo asset[cite: 8]
+└── README.md           # Project documentation
