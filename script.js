@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Tab Navigation
 function switchTab(tabId, event) {
   if (event) event.preventDefault();
-  
+
   document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
 
@@ -134,7 +134,7 @@ function renderMonthGrid() {
 function createDayCell(dayNum, isOtherMonth, dateStr = '') {
   const cell = document.createElement('div');
   cell.className = `calendar-day-cell ${isOtherMonth ? 'other-month' : ''}`;
-  
+
   const numSpan = document.createElement('span');
   numSpan.className = 'day-number';
   numSpan.innerText = dayNum;
@@ -143,24 +143,8 @@ function createDayCell(dayNum, isOtherMonth, dateStr = '') {
   if (!isOtherMonth) {
     const dayEvents = eventsData.filter(ev => ev.date === dateStr && (activeOrgFilter === 'ALL' || ev.org === activeOrgFilter));
     dayEvents.forEach(ev => {
-      const badge = document.createElement('div');
-      badge.className = 'event-badge';
-      const orgInfo = ORGS[ev.org] || { bg: '#0b2545', icon: 'fa-calendar' };
-      badge.style.backgroundColor = `${orgInfo.bg}15`;
-      badge.style.color = orgInfo.bg;
-      badge.style.borderLeft = `3px solid ${orgInfo.bg}`;
-
-      badge.innerHTML = `
-        <span class="org-icon-badge" style="background:${orgInfo.bg}">
-          <i class="fa-solid ${orgInfo.icon}"></i>
-        </span>
-        <span>${ev.title}</span>
-      `;
-      badge.onclick = (e) => {
-        e.stopPropagation();
-        openEventModal(ev);
-      };
-      cell.appendChild(badge);
+      const eventCard = createCalendarEventElement(ev, openEventModal);
+      cell.appendChild(eventCard);
     });
   }
 
@@ -190,7 +174,7 @@ function renderListGrid() {
 
   const filtered = eventsData.filter(ev => activeOrgFilter === 'ALL' || ev.org === activeOrgFilter);
   container.innerHTML = filtered.map(ev => {
-    const org = ORGS[ev.org];
+    const org = ORGS[ev.org] || ORGS.SSC;
     return `
       <div class="upcoming-item" style="margin-bottom: 10px;" onclick="openEventModalById(${ev.id})">
         <div class="upcoming-icon" style="background: ${org.bg}">
@@ -232,7 +216,7 @@ function renderUpcomingEvents() {
   const filtered = eventsData.filter(ev => activeOrgFilter === 'ALL' || ev.org === activeOrgFilter).slice(0, 4);
 
   container.innerHTML = filtered.map(ev => {
-    const org = ORGS[ev.org];
+    const org = ORGS[ev.org] || ORGS.SSC;
     return `
       <div class="upcoming-item" onclick="openEventModalById(${ev.id})">
         <div class="upcoming-icon" style="background: ${org.bg}">
@@ -255,7 +239,7 @@ function renderEventsDirectory() {
   const filtered = eventsData.filter(ev => activeOrgFilter === 'ALL' || ev.org === activeOrgFilter);
 
   container.innerHTML = filtered.map(ev => {
-    const org = ORGS[ev.org];
+    const org = ORGS[ev.org] || ORGS.SSC;
     return `
       <div class="event-card-full">
         <div>
@@ -292,15 +276,15 @@ function renderAnnouncements() {
 // Search Handler
 function handleSearch() {
   const query = document.getElementById('searchInput').value.toLowerCase();
-  const filteredEvents = eventsData.filter(ev => 
-    ev.title.toLowerCase().includes(query) || 
+  const filteredEvents = eventsData.filter(ev =>
+    ev.title.toLowerCase().includes(query) ||
     ev.venue.toLowerCase().includes(query) ||
     ev.desc.toLowerCase().includes(query)
   );
 
   const container = document.getElementById('upcomingEventsList');
   container.innerHTML = filteredEvents.map(ev => {
-    const org = ORGS[ev.org];
+    const org = ORGS[ev.org] || ORGS.SSC;
     return `
       <div class="upcoming-item" onclick="openEventModalById(${ev.id})">
         <div class="upcoming-icon" style="background: ${org.bg}">
@@ -319,7 +303,7 @@ function handleSearch() {
 // Event Modal Logic
 function openEventModal(ev) {
   const org = ORGS[ev.org] || { name: 'AU-JRC', bg: '#0b2545', icon: 'fa-users' };
-  
+
   document.getElementById('mOrgBadge').style.backgroundColor = org.bg;
   document.getElementById('mOrgBadge').innerHTML = `<i class="fa-solid ${org.icon}"></i>`;
   document.getElementById('mTitle').innerText = ev.title;
@@ -360,6 +344,7 @@ function handleLoginSubmit(e) {
     document.getElementById('loginBtnText').innerText = 'Admin Active';
     document.getElementById('adminPanel').style.display = 'block';
     closeModal('loginModal');
+    renderCalendar();
     renderEventsDirectory();
     alert('Admin Mode Activated!');
   } else {
@@ -371,11 +356,30 @@ function logoutAdmin() {
   isAdminLoggedIn = false;
   document.getElementById('loginBtnText').innerText = 'Login';
   document.getElementById('adminPanel').style.display = 'none';
+  renderCalendar();
   renderEventsDirectory();
 }
 
-function handleCreateEvent(e) {
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleCreateEvent(e) {
   e.preventDefault();
+
+  const fileInput = document.getElementById('evLogoFile');
+  const urlInput = document.getElementById('evLogoUrl');
+  let logoUrl = urlInput ? urlInput.value.trim() : '';
+
+  if (fileInput && fileInput.files && fileInput.files[0]) {
+    logoUrl = await readFileAsDataUrl(fileInput.files[0]);
+  }
+
   const newEv = {
     id: Date.now(),
     title: document.getElementById('evTitle').value,
@@ -383,7 +387,8 @@ function handleCreateEvent(e) {
     time: document.getElementById('evTime').value,
     venue: document.getElementById('evVenue').value,
     org: document.getElementById('evOrg').value,
-    desc: document.getElementById('evDesc').value
+    desc: document.getElementById('evDesc').value,
+    logoUrl: logoUrl
   };
 
   eventsData.push(newEv);
@@ -417,4 +422,74 @@ function deleteEvent(id) {
     renderUpcomingEvents();
     renderEventsDirectory();
   }
+}
+
+const ORG_STYLES = {
+  SSC: { icon: "fa-landmark", color: "#0f294a" },
+  ICT: { icon: "fa-laptop-code", color: "#1d4ed8" },
+  RCY: { icon: "fa-kit-medical", color: "#dc2626" },
+  SPORTS: { icon: "fa-trophy", color: "#d97706" },
+  NSTP: { icon: "fa-seedling", color: "#15803d" },
+  ALUMNI: { icon: "fa-user-graduate", color: "#6d28d9" }
+};
+
+function createCalendarEventElement(event, onOpenDetails) {
+  const orgKey = (event.org || event.organization || "SSC").toUpperCase();
+  const orgMeta = ORG_STYLES[orgKey] || { icon: "fa-calendar-star", color: "#0f294a" };
+
+  const card = document.createElement("div");
+  card.className = "calendar-event-card";
+  card.addEventListener("click", () => {
+    if (typeof onOpenDetails === "function") {
+      onOpenDetails(event);
+    }
+  });
+
+  // Logo circle
+  const logo = document.createElement("div");
+  logo.className = "event-logo-circle";
+  logo.style.backgroundColor = orgMeta.color;
+
+  // Use custom event.logoUrl, or fall back to the SSC image for SSC events
+  const imageSrc = event.logoUrl || (orgKey === "SSC" ? "images/ssc-logo.png" : "");
+
+  if (imageSrc) {
+    const img = document.createElement("img");
+    img.src = imageSrc;
+    img.alt = `${orgKey} logo`;
+    img.style.width = "100%";
+    img.style.height = "100%";
+    img.style.objectFit = "cover";
+    img.style.borderRadius = "50%";
+    logo.appendChild(img);
+  } else {
+    logo.innerHTML = `<i class="fa-solid ${orgMeta.icon}"></i>`;
+  }
+
+  // Event title underneath the logo
+  const title = document.createElement("div");
+  title.className = "event-card-title";
+  title.textContent = event.title || "Untitled Event";
+
+  card.appendChild(logo);
+  card.appendChild(title);
+
+  // Admin-only delete button
+  if (isAdminLoggedIn && event.id) {
+    const delBtn = document.createElement("button");
+    delBtn.type = "button";
+    delBtn.className = "admin-delete-btn";
+    delBtn.title = "Delete event";
+    delBtn.setAttribute("aria-label", `Delete ${event.title}`);
+    delBtn.innerHTML = `<i class="fa-solid fa-trash"></i>`;
+
+    delBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      deleteEvent(event.id);
+    });
+
+    card.appendChild(delBtn);
+  }
+
+  return card;
 }
